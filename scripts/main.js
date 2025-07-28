@@ -1,6 +1,7 @@
 const dogImageContainer = document.getElementById('dog-output');
 const catImageContainer = document.getElementById('cat-output');
 const githubContainer = document.getElementById('github-output');
+const githubNameInput = document.getElementById('github-name-input');
 
 async function getDogImage() {
     const response = await fetch("https://dog.ceo/api/breeds/image/random");
@@ -33,10 +34,12 @@ async function getCatImage() {
 
 async function getGitHubUser(){
     // const response = await fetch("https://api.github.com/");
-    const response = await fetch("https://api.github.com/users/DhanushkaChandimal");
+    // const response = await fetch("https://api.github.com/users/DhanushkaChandimal");
+    const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
     const data = await response.json();
     console.log(data);
     // console.log(data.avatar_url);
+    githubContainer.innerHTML = ''; // Clear previous images
 
     const gitInnerContainer = document.createElement('div');
     gitInnerContainer.classList.add('github-inner-container');
@@ -46,14 +49,19 @@ async function getGitHubUser(){
     avatar.alt = "GitHub User Avatar";
     gitInnerContainer.appendChild(avatar);
     
-    const username = document.createElement('h2');
+    const username = document.createElement('h4');
     username.textContent = data.login;
     gitInnerContainer.appendChild(username);
+    githubContainer.appendChild(gitInnerContainer);
     
     const bio = document.createElement('p');
     bio.textContent = data.bio || "No bio available";
-    gitInnerContainer.appendChild(bio);
-    
-    githubContainer.innerHTML = ''; // Clear previous images
-    githubContainer.appendChild(gitInnerContainer);
+    githubContainer.appendChild(bio);
+
+    const profileLink = document.createElement('a');
+    profileLink.href = data.html_url;
+    profileLink.textContent = "View Profile";
+    profileLink.target = "_blank"; // Open in new tab
+    githubContainer.appendChild(profileLink);
+
 }
