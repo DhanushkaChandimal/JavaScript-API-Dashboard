@@ -59,3 +59,16 @@ img {
     border-radius: 5px;
     margin-top: 0.5rem;
 }
+
+.github-inner-container img {
+    border-radius: 50%;
+    max-width: 50px;
+    max-height: 50px;
+    margin: 0px 1rem 1rem 0;
+}
+
+.github-inner-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
