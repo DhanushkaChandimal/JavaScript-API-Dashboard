@@ -8,6 +8,7 @@ const currencyForm = document.getElementById('currency-form');
 const fromValueElement = document.getElementById('currency-input-from');
 const toValueElement = document.getElementById('currency-input-to');
 const githubNameInput = document.getElementById('github-name-input');
+const zipcodeInput = document.getElementById('zipcode-input');
 
 let exchangeRateList;
 
@@ -72,19 +73,32 @@ async function getCatImage() {
 }
 
 async function getWeather() {
-    const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=30.2672&longitude=-97.7431&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch");
+    weatherContainer.innerHTML = '';
+    const location = await fetch(`https://corsproxy.io/?https://www.zipcodeapi.com/rest/DemoOnly00p5g105NIMgcs7xLprpBsICspEFKkTcC4HcueQAg8ARdqXv3PG5MgsW/info.json/${zipcodeInput.value}/degrees`);
+    if (!location.ok) {
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Invalid zipcode entered or unable to fetch location.";
+        errorMsg.style.color = 'red';
+        weatherContainer.appendChild(errorMsg);
+        return;
+    }
+    const locationData = await location.json();
+
+    console.log(locationData);
+
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
     const data = await response.json();
 
     console.log(data);
 
     const element = document.createElement('p');
     element.textContent = 
-        `Temperature: ${data.current.temperature_2m}°F\n\n` +
-        `Relative Humidity: ${data.current.relative_humidity_2m}%\n\n` +
-        `Wind Speed: ${data.current.wind_speed_10m} mph\n\n` +
-        `Weather: ${weatherCodeToDescription[data.current.weather_code] || "Unknown"}`;
+        `${locationData.city}, ${locationData.state}\n
+        Temperature: ${data.current.temperature_2m}°F
+        Relative Humidity: ${data.current.relative_humidity_2m}%
+        Wind Speed: ${data.current.wind_speed_10m} mph
+        Weather: ${weatherCodeToDescription[data.current.weather_code] || "Unknown"}`;
     element.style.whiteSpace = 'pre-line';
-    weatherContainer.innerHTML = ''; // Clear previous results
     weatherContainer.appendChild(element);
 
 }
