@@ -32,36 +32,43 @@ async function getCatImage() {
     }
 }
 
-async function getGitHubUser(){
-    // const response = await fetch("https://api.github.com/");
-    // const response = await fetch("https://api.github.com/users/DhanushkaChandimal");
-    const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
-    const data = await response.json();
-    console.log(data);
-    // console.log(data.avatar_url);
+async function getGitHubUser() {
     githubContainer.innerHTML = ''; // Clear previous images
 
-    const gitInnerContainer = document.createElement('div');
-    gitInnerContainer.classList.add('github-inner-container');
-    
-    const avatar = document.createElement('img');
-    avatar.src = data.avatar_url;
-    avatar.alt = "GitHub User Avatar";
-    gitInnerContainer.appendChild(avatar);
-    
-    const username = document.createElement('h4');
-    username.textContent = data.login;
-    gitInnerContainer.appendChild(username);
-    githubContainer.appendChild(gitInnerContainer);
-    
-    const bio = document.createElement('p');
-    bio.textContent = data.bio || "No bio available";
-    githubContainer.appendChild(bio);
+    try {
+        const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
+        if (!response.ok) {
+            throw new Error(`User not found or error: ${response.status}`);
+        }
+        const data = await response.json();
 
-    const profileLink = document.createElement('a');
-    profileLink.href = data.html_url;
-    profileLink.textContent = "View Profile";
-    profileLink.target = "_blank"; // Open in new tab
-    githubContainer.appendChild(profileLink);
+        const gitInnerContainer = document.createElement('div');
+        gitInnerContainer.classList.add('github-inner-container');
 
+        const avatar = document.createElement('img');
+        avatar.src = data.avatar_url;
+        avatar.alt = "GitHub User Avatar";
+        gitInnerContainer.appendChild(avatar);
+
+        const username = document.createElement('h4');
+        username.textContent = data.login;
+        gitInnerContainer.appendChild(username);
+        githubContainer.appendChild(gitInnerContainer);
+
+        const bio = document.createElement('p');
+        bio.textContent = data.bio || "No bio available";
+        githubContainer.appendChild(bio);
+
+        const profileLink = document.createElement('a');
+        profileLink.href = data.html_url;
+        profileLink.textContent = "View Profile";
+        profileLink.target = "_blank";
+        githubContainer.appendChild(profileLink);
+    } catch (error) {
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = `Error: ${error.message}`;
+        errorMsg.style.color = 'red';
+        githubContainer.appendChild(errorMsg);
+        console.error(error);
+    }
 }
