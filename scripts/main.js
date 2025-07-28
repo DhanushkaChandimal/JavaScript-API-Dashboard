@@ -4,6 +4,7 @@ const githubContainer = document.getElementById('github-output');
 const jokeContainer = document.getElementById('joke-output');
 const exchangeRatesContainer = document.getElementById('currency-output');
 const weatherContainer = document.getElementById('weather-output');
+const moviesContainer = document.getElementById('movies-output');
 const currencyForm = document.getElementById('currency-form');
 const fromValueElement = document.getElementById('currency-input-from');
 const toValueElement = document.getElementById('currency-input-to');
@@ -84,12 +85,12 @@ async function getWeather() {
     }
     const locationData = await location.json();
 
-    console.log(locationData);
+    // console.log(locationData);
 
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
     const data = await response.json();
 
-    console.log(data);
+    // console.log(data);
 
     const element = document.createElement('p');
     element.textContent = 
@@ -142,8 +143,35 @@ async function getExchangeRates() {
     }
 }
 
+async function getMovies() {
+    moviesContainer.innerHTML = ''; // Clear previous content
+    const response = await fetch("https://api.themoviedb.org/3/trending/movie/day", {
+        headers: {
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNTc4YWFlN2Y0NDYyZTViNGVkYzQyMDYzNjQ0NmQ5OCIsIm5iZiI6MTc1MzczNDE5Ny43MTksInN1YiI6IjY4ODdkYzM1YTg1NGU0MmViM2Y3OTZlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.G1BlyixM9bLMm4NE9p0j2A-cPahKo3XJcY9lMTafxww"
+        }
+    });
+    const data = await response.json();
+
+    // console.log(data);
+    console.log(data.results);
+
+    for (let i = 0; i < 5 && i < Math.max(data.results.length, 5); i++) {
+        const poster = document.createElement('img');
+        poster.src = `https://image.tmdb.org/t/p/w500/${data.results[i].poster_path}`;
+        poster.alt = "Movie Poster";
+        const movieTitle = document.createElement('p');
+        movieTitle.textContent = data.results[i].title;
+        const rowContainer = document.createElement('div');
+        rowContainer.classList.add('movie-row');
+        rowContainer.appendChild(poster);
+        rowContainer.appendChild(movieTitle);
+        moviesContainer.appendChild(rowContainer);
+    }
+
+}
+
 async function getGitHubUser() {
-    githubContainer.innerHTML = ''; // Clear previous images
+    githubContainer.innerHTML = ''; // Clear previous content
     
     try {
         const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
