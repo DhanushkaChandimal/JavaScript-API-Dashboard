@@ -3,6 +3,7 @@ const catImageContainer = document.getElementById('cat-output');
 const githubContainer = document.getElementById('github-output');
 const jokeContainer = document.getElementById('joke-output');
 const exchangeRatesContainer = document.getElementById('currency-output');
+const weatherContainer = document.getElementById('weather-output');
 const currencyForm = document.getElementById('currency-form');
 const fromValueElement = document.getElementById('currency-input-from');
 const toValueElement = document.getElementById('currency-input-to');
@@ -37,6 +38,24 @@ async function getCatImage() {
     } else {
         console.error("Failed to fetch cat image");
     }
+}
+
+async function getWeather() {
+    const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=30.2672&longitude=-97.7431&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch");
+    const data = await response.json();
+
+    console.log(data);
+
+    const element = document.createElement('p');
+    element.textContent = 
+        `Temperature: ${data.current.temperature_2m}°F\n\n` +
+        `Relative Humidity: ${data.current.relative_humidity_2m}%\n\n` +
+        `Wind Speed: ${data.current.wind_speed_10m} mph\n\n` +
+        `Weather Code: ${data.current.weather_code}`;
+    element.style.whiteSpace = 'pre-line';
+    weatherContainer.innerHTML = ''; // Clear previous results
+    weatherContainer.appendChild(element);
+
 }
 
 async function fetchExchangeRates() {
