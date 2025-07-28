@@ -2,7 +2,13 @@ const dogImageContainer = document.getElementById('dog-output');
 const catImageContainer = document.getElementById('cat-output');
 const githubContainer = document.getElementById('github-output');
 const jokeContainer = document.getElementById('joke-output');
+const exchangeRatesContainer = document.getElementById('currency-output');
+const currencyForm = document.getElementById('currency-form');
+const fromValueElement = document.getElementById('currency-input-from');
+const toValueElement = document.getElementById('currency-input-to');
 const githubNameInput = document.getElementById('github-name-input');
+
+let exchangeRateList;
 
 async function getDogImage() {
     const response = await fetch("https://dog.ceo/api/breeds/image/random");
@@ -21,7 +27,7 @@ async function getDogImage() {
 async function getCatImage() {
     const response = await fetch("https://api.thecatapi.com/v1/images/search");
     const data = await response.json();
-    // console.log(data[0]);
+
     if (data.length > 0) {
         const img = document.createElement('img');
         img.src = data[0].url;
@@ -33,9 +39,48 @@ async function getCatImage() {
     }
 }
 
+async function fetchExchangeRates() {
+    const currencies = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json");
+    exchangeRateList = await currencies.json();
+    const dataList = document.createElement('datalist');
+    dataList.id = 'currencies';
+
+    for (let currency in exchangeRateList.usd) {
+        const option = document.createElement('option');
+        option.value = currency;
+        option.textContent = currency;
+        dataList.appendChild(option);
+        // console.log(`${currency} - ${exchangeRateList.usd[currency]}`);
+    }
+
+    currencyForm.appendChild(dataList);
+    // console.log(dataList)
+}
+
+async function getExchangeRates() {
+    let fromRate = exchangeRateList.usd[fromValueElement.value];
+    let toRate = exchangeRateList.usd[toValueElement.value];
+    // console.log(fromRate, toRate);
+    console.log(fromRate, toRate);
+
+    if (!fromRate || !toRate) {
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Invalid currency selected.";
+        exchangeRatesContainer.innerHTML = ''; // Clear previous results
+        exchangeRatesContainer.appendChild(errorMsg);
+    }else{
+        const amount = document.getElementById('amount-input').value;
+        const exchangeResultElement = document.createElement('p');
+        exchangeResultElement.textContent = `Exchange Rate: ${(amount * fromRate / toRate).toFixed(4)}`;
+        exchangeRatesContainer.innerHTML = ''; // Clear previous results
+        exchangeRatesContainer.appendChild(exchangeResultElement);
+
+    }
+}
+
 async function getGitHubUser() {
     githubContainer.innerHTML = ''; // Clear previous images
-
+    
     try {
         const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
         if (!response.ok) {
@@ -55,7 +100,7 @@ async function getGitHubUser() {
         username.textContent = data.login;
         gitInnerContainer.appendChild(username);
         githubContainer.appendChild(gitInnerContainer);
-
+        
         const bio = document.createElement('p');
         bio.textContent = data.bio || "No bio available";
         githubContainer.appendChild(bio);
@@ -78,8 +123,7 @@ async function getJoke() {
     jokeContainer.innerHTML = ''; // Clear previous jokes
     const response = await fetch("https://v2.jokeapi.dev/joke/Any?type=single&safe-mode");
     const data = await response.json();
-    console.log(data);
-
+    
     if (!data.error) {
         const joke = document.createElement('p');
         joke.textContent = data.joke;
@@ -92,3 +136,5 @@ async function getJoke() {
         console.error("Failed to fetch random joke:", data.message);
     }
 }
+
+document.addEventListener('DOMContentLoaded', fetchExchangeRates);
