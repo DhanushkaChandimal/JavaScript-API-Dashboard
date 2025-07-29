@@ -46,91 +46,105 @@ const weatherCodeToDescription = {
     99: "Thunderstorm with slight and heavy hail"
 }
 
-// Utility function for spinner
+// Helper to show error messages
+function showError(container, message) {
+    container.innerHTML = '';
+    const errorMsg = document.createElement('p');
+    errorMsg.textContent = message;
+    errorMsg.style.color = 'red';
+    container.appendChild(errorMsg);
+}
+
+// Spinner utility
 function showSpinner(container) {
     container.innerHTML = '<div class="spinner"></div>';
 }
 
+// DOG IMAGE
 async function getDogImage() {
     showSpinner(dogImageContainer);
-    const response = await fetch("https://dog.ceo/api/breeds/image/random");
-    const data = await response.json();
-    dogImageContainer.innerHTML = '';
-    if (data.status === "success") {
-        const img = document.createElement('img');
-        img.src = data.message;
-        img.alt = "Random Dog Image";
-        dogImageContainer.appendChild(img);
-    } else {
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Failed to fetch dog image";
-        errorMsg.style.color = 'red';
-        dogImageContainer.appendChild(errorMsg);
+    try {
+        const response = await fetch("https://dog.ceo/api/breeds/image/random");
+        const data = await response.json();
+        dogImageContainer.innerHTML = '';
+        if (data.status === "success") {
+            const img = document.createElement('img');
+            img.src = data.message;
+            img.alt = "Random Dog Image";
+            dogImageContainer.appendChild(img);
+        } else {
+            showError(dogImageContainer, "Failed to fetch dog image");
+        }
+    } catch {
+        showError(dogImageContainer, "Failed to fetch dog image");
     }
 }
 
+// CAT IMAGE
 async function getCatImage() {
     showSpinner(catImageContainer);
-    const response = await fetch("https://api.thecatapi.com/v1/images/search");
-    const data = await response.json();
-    catImageContainer.innerHTML = '';
-    if (data.length > 0) {
-        const img = document.createElement('img');
-        img.src = data[0].url;
-        img.alt = "Random Cat Image";
-        catImageContainer.appendChild(img);
-    } else {
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Failed to fetch cat image";
-        errorMsg.style.color = 'red';
-        catImageContainer.appendChild(errorMsg);
+    try {
+        const response = await fetch("https://api.thecatapi.com/v1/images/search");
+        const data = await response.json();
+        catImageContainer.innerHTML = '';
+        if (data.length > 0) {
+            const img = document.createElement('img');
+            img.src = data[0].url;
+            img.alt = "Random Cat Image";
+            catImageContainer.appendChild(img);
+        } else {
+            showError(catImageContainer, "Failed to fetch cat image");
+        }
+    } catch {
+        showError(catImageContainer, "Failed to fetch cat image");
     }
 }
 
+// WEATHER
 async function getWeather() {
     showSpinner(weatherContainer);
-    const location = await fetch(`https://corsproxy.io/?https://www.zipcodeapi.com/rest/DemoOnly00p5g105NIMgcs7xLprpBsICspEFKkTcC4HcueQAg8ARdqXv3PG5MgsW/info.json/${zipcodeInput.value}/degrees`);
-    if (!location.ok) {
+    try {
+        const location = await fetch(`https://corsproxy.io/?https://www.zipcodeapi.com/rest/DemoOnly00p5g105NIMgcs7xLprpBsICspEFKkTcC4HcueQAg8ARdqXv3PG5MgsW/info.json/${zipcodeInput.value}/degrees`);
+        if (!location.ok) throw new Error();
+        const locationData = await location.json();
+
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
+        const data = await response.json();
+
         weatherContainer.innerHTML = '';
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Invalid zipcode entered or unable to fetch location.";
-        errorMsg.style.color = 'red';
-        weatherContainer.appendChild(errorMsg);
-        return;
+        const element = document.createElement('p');
+        element.textContent =
+            `${locationData.city}, ${locationData.state}\n
+Temperature: ${data.current.temperature_2m}°F
+Relative Humidity: ${data.current.relative_humidity_2m}%
+Wind Speed: ${data.current.wind_speed_10m} mph
+Weather: ${weatherCodeToDescription[data.current.weather_code] || "Unknown"}`;
+        element.style.whiteSpace = 'pre-line';
+        weatherContainer.appendChild(element);
+    } catch {
+        showError(weatherContainer, "Invalid zipcode entered or unable to fetch location.");
     }
-    const locationData = await location.json();
-
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
-    const data = await response.json();
-
-    weatherContainer.innerHTML = '';
-    const element = document.createElement('p');
-    element.textContent = 
-        `${locationData.city}, ${locationData.state}\n
-        Temperature: ${data.current.temperature_2m}°F
-        Relative Humidity: ${data.current.relative_humidity_2m}%
-        Wind Speed: ${data.current.wind_speed_10m} mph
-        Weather: ${weatherCodeToDescription[data.current.weather_code] || "Unknown"}`;
-    element.style.whiteSpace = 'pre-line';
-    weatherContainer.appendChild(element);
 }
 
+// EXCHANGE RATES
 async function fetchExchangeRates() {
     showSpinner(exchangeRatesContainer);
-    const currencies = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json");
-    exchangeRateList = await currencies.json();
-    const dataList = document.createElement('datalist');
-    dataList.id = 'currencies';
+    try {
+        const currencies = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json");
+        exchangeRateList = await currencies.json();
+        const dataList = document.createElement('datalist');
+        dataList.id = 'currencies';
 
-    for (let currency in exchangeRateList.usd) {
-        const option = document.createElement('option');
-        option.value = currency;
-        option.textContent = currency;
-        dataList.appendChild(option);
+        for (let currency in exchangeRateList.usd) {
+            const option = document.createElement('option');
+            option.value = currency;
+            dataList.appendChild(option);
+        }
+        currencyForm.appendChild(dataList);
+        exchangeRatesContainer.innerHTML = '';
+    } catch {
+        showError(exchangeRatesContainer, "Failed to fetch exchange rates.");
     }
-
-    currencyForm.appendChild(dataList);
-    exchangeRatesContainer.innerHTML = '';
 }
 
 async function getExchangeRates() {
@@ -139,10 +153,7 @@ async function getExchangeRates() {
     let toRate = exchangeRateList.usd[toValueElement.value];
 
     if (!fromRate || !toRate) {
-        exchangeRatesContainer.innerHTML = '';
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Invalid currency selected.";
-        exchangeRatesContainer.appendChild(errorMsg);
+        showError(exchangeRatesContainer, "Invalid currency selected.");
     } else {
         const amount = document.getElementById('amount-input').value;
         const exchangeResultElement = document.createElement('p');
@@ -152,121 +163,114 @@ async function getExchangeRates() {
     }
 }
 
+// MOVIES
 async function getMovies() {
     showSpinner(moviesContainer);
-    const response = await fetch("https://api.themoviedb.org/3/trending/movie/day", {
-        headers: {
-            Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNTc4YWFlN2Y0NDYyZTViNGVkYzQyMDYzNjQ0NmQ5OCIsIm5iZiI6MTc1MzczNDE5Ny43MTksInN1YiI6IjY4ODdkYzM1YTg1NGU0MmViM2Y3OTZlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.G1BlyixM9bLMm4NE9p0j2A-cPahKo3XJcY9lMTafxww"
+    try {
+        const response = await fetch("https://api.themoviedb.org/3/trending/movie/day", {
+            headers: {
+                Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNTc4YWFlN2Y0NDYyZTViNGVkYzQyMDYzNjQ0NmQ5OCIsIm5iZiI6MTc1MzczNDE5Ny43MTksInN1YiI6IjY4ODdkYzM1YTg1NGU0MmViM2Y3OTZlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.G1BlyixM9bLMm4NE9p0j2A-cPahKo3XJcY9lMTafxww"
+            }
+        });
+        const data = await response.json();
+        moviesContainer.innerHTML = '';
+        for (let i = 0; i < 5 && i < Math.max(data.results.length, 5); i++) {
+            const poster = document.createElement('img');
+            poster.src = `https://image.tmdb.org/t/p/w500/${data.results[i].poster_path}`;
+            poster.alt = "Movie Poster";
+            const movieTitle = document.createElement('p');
+            movieTitle.textContent = data.results[i].title;
+            const rowContainer = document.createElement('div');
+            rowContainer.classList.add('movie-row');
+            rowContainer.appendChild(poster);
+            rowContainer.appendChild(movieTitle);
+            moviesContainer.appendChild(rowContainer);
         }
-    });
-    const data = await response.json();
-    moviesContainer.innerHTML = '';
-    for (let i = 0; i < 5 && i < Math.max(data.results.length, 5); i++) {
-        const poster = document.createElement('img');
-        poster.src = `https://image.tmdb.org/t/p/w500/${data.results[i].poster_path}`;
-        poster.alt = "Movie Poster";
-        const movieTitle = document.createElement('p');
-        movieTitle.textContent = data.results[i].title;
-        const rowContainer = document.createElement('div');
-        rowContainer.classList.add('movie-row');
-        rowContainer.appendChild(poster);
-        rowContainer.appendChild(movieTitle);
-        moviesContainer.appendChild(rowContainer);
+    } catch {
+        showError(moviesContainer, "Failed to fetch movies.");
     }
 }
 
+// GITHUB USER
 async function getGitHubUser() {
     showSpinner(githubContainer);
     try {
         const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
-        if (!response.ok) {
-            throw new Error(`User not found or error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error();
         const data = await response.json();
-        
+
         githubContainer.innerHTML = '';
         const gitInnerContainer = document.createElement('div');
         gitInnerContainer.classList.add('github-inner-container');
-        
+
         const avatar = document.createElement('img');
         avatar.src = data.avatar_url;
         avatar.alt = "GitHub User Avatar";
         gitInnerContainer.appendChild(avatar);
-        
+
         const username = document.createElement('h4');
         username.textContent = data.login;
         gitInnerContainer.appendChild(username);
         githubContainer.appendChild(gitInnerContainer);
-        
+
         const bio = document.createElement('p');
         bio.textContent = data.bio || "No bio available";
         githubContainer.appendChild(bio);
-        
+
         const profileLink = document.createElement('a');
         profileLink.href = data.html_url;
         profileLink.textContent = "View Profile";
         profileLink.target = "_blank";
         githubContainer.appendChild(profileLink);
-    } catch (error) {
-        githubContainer.innerHTML = '';
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = `Error: ${error.message}`;
-        errorMsg.style.color = 'red';
-        githubContainer.appendChild(errorMsg);
-        console.error(error);
+    } catch {
+        showError(githubContainer, "User not found or error fetching user.");
     }
 }
 
+// JOKE
 async function getJoke() {
     showSpinner(jokeContainer);
-    const response = await fetch("https://v2.jokeapi.dev/joke/Any?type=single&safe-mode");
-    const data = await response.json();
-    jokeContainer.innerHTML = '';
-    if (!data.error) {
-        const joke = document.createElement('p');
-        joke.textContent = data.joke;
-        jokeContainer.appendChild(joke);
-    } else {
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Error fetching joke";
-        errorMsg.style.color = 'red';
-        jokeContainer.appendChild(errorMsg);
-        console.error("Failed to fetch random joke:", data.message);
+    try {
+        const response = await fetch("https://v2.jokeapi.dev/joke/Any?type=single&safe-mode");
+        const data = await response.json();
+        jokeContainer.innerHTML = '';
+        if (!data.error) {
+            const joke = document.createElement('p');
+            joke.textContent = data.joke;
+            jokeContainer.appendChild(joke);
+        } else {
+            showError(jokeContainer, "Error fetching joke");
+        }
+    } catch {
+        showError(jokeContainer, "Error fetching joke");
     }
 }
 
+// QR CODE
 async function getQRCode() {
     showSpinner(qrCodeContainer);
     if (!qrInput.value) {
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Please enter text to generate QR code.";
-        qrCodeContainer.innerHTML = '';
-        qrCodeContainer.appendChild(errorMsg);
+        showError(qrCodeContainer, "Please enter text to generate QR code.");
         return;
     }
 
-    // Check if input is a valid URL
     let isValidUrl = false;
     try {
         new URL(qrInput.value);
         isValidUrl = true;
-    } catch (e) {
+    } catch {
         isValidUrl = false;
     }
 
     if (!isValidUrl) {
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = "Please enter a valid URL (e.g., https://example.com).";
-        qrCodeContainer.innerHTML = '';
-        qrCodeContainer.appendChild(errorMsg);
+        showError(qrCodeContainer, "Please enter a valid URL (e.g., https://example.com).");
         return;
     }
 
-
+    qrCodeContainer.innerHTML = '';
     const img = document.createElement('img');
     img.src = "https://qrtag.net/api/qr_4.png?url=" + encodeURIComponent(qrInput.value);
     img.alt = "QR tag";
-    qrCodeContainer.innerHTML = '';
     qrCodeContainer.appendChild(img);
 }
 
