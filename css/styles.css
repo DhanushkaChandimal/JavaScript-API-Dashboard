@@ -26,8 +26,12 @@ body {
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    min-height: 350px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    position: relative;
+    min-height: 370px;
+    padding-bottom: 0;
 }
 
 .grid-item h2 {
@@ -116,4 +120,18 @@ button {
 @keyframes spin {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
+}
+
+.card-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 0.7rem;
+}
+
+.card-form button {
+    margin-top: auto;
+    margin-bottom: 0;
 }

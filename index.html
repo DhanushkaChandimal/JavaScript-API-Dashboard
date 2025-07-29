@@ -9,69 +9,84 @@
 <body>
     <h1 class="main-title">JavaScript API Dashboard</h1>
     <div class="grid-container">
+        <!-- Dog API -->
         <section class="grid-item" id="dog-api">
             <h2>🐶 Random Dog</h2>
-            <button onclick="getDogImage()">Get Dog</button>
-            <div class="output" id="dog-output"></div>
+            <form class="card-form" onsubmit="event.preventDefault(); getDogImage();">
+                <div class="output" id="dog-output"></div>
+                <button type="submit">Get Dog</button>
+            </form>
         </section>
 
+        <!-- Cat API -->
         <section class="grid-item" id="cat-api">
             <h2>🐱 Random Cat</h2>
-            <button onclick="getCatImage()">Get Cat</button>
-            <div class="output" id="cat-output"></div>
+            <form class="card-form" onsubmit="event.preventDefault(); getCatImage();">
+                <div class="output" id="cat-output"></div>
+                <button type="submit">Get Cat</button>
+            </form>
         </section>
 
+        <!-- Weather API -->
         <section class="grid-item" id="weather-api">
             <h2>☀️ Weather Info</h2>
-            <form>
+            <form class="card-form" onsubmit="event.preventDefault(); getWeather();">
                 <input type="text" name="zipcode" id="zipcode-input" placeholder="Enter Zip Code" />
+                <div class="output" id="weather-output"></div>
+                <button type="submit">Get Weather</button>
             </form>
-            <button onclick="getWeather()">Get Weather</button>
-            <div class="output" id="weather-output"></div>
         </section>
 
+        <!-- Currency API -->
         <section class="grid-item" id="currency-api">
             <h2>💱 Currency Rates</h2>
-            <form id="currency-form">
+            <form class="card-form" id="currency-form" onsubmit="event.preventDefault(); getExchangeRates();">
                 <input list="currencies" name="currency-input-from" id="currency-input-from" placeholder="From (e.g., USD)" />
                 <input list="currencies" name="currency-input-to" id="currency-input-to" placeholder="To (e.g., EUR)" />
                 <input type="number" name="amount-input" id="amount-input" placeholder="Amount (e.g., 100)" />
+                <div class="output" id="currency-output"></div>
+                <button type="submit">Get Rates</button>
             </form>
-            <button onclick="getExchangeRates()">Get Rates</button>
-            <div class="output" id="currency-output"></div>
         </section>
 
+        <!-- Movies API -->
         <section class="grid-item" id="movies-api">
             <h2>🎮 Trending Movies</h2>
-            <button onclick="getMovies()">Get Movies</button>
-            <div class="output" id="movies-output"></div>
+            <form class="card-form" onsubmit="event.preventDefault(); getMovies();">
+                <div class="output" id="movies-output"></div>
+                <button type="submit">Get Movies</button>
+            </form>
         </section>
 
+        <!-- GitHub API -->
         <section class="grid-item" id="github-api">
             <h2>🧑‍💻 GitHub User</h2>
-            <form>
+            <form class="card-form" onsubmit="event.preventDefault(); getGitHubUser();">
                 <input type="text" name="github-name-input" id="github-name-input" placeholder="Enter GitHub Username" />
+                <div class="output" id="github-output"></div>
+                <button type="submit">Get User</button>
             </form>
-            <button onclick="getGitHubUser()">Get User</button>
-            <div class="output" id="github-output"></div>
         </section>
 
+        <!-- Joke API -->
         <section class="grid-item" id="joke-api">
             <h2>🤣 Random Joke</h2>
-            <button onclick="getJoke()">Get Joke</button>
-            <div class="output" id="joke-output"></div>
+            <form class="card-form" onsubmit="event.preventDefault(); getJoke();">
+                <div class="output" id="joke-output"></div>
+                <button type="submit">Get Joke</button>
+            </form>
         </section>
 
+        <!-- QR Code API -->
         <section class="grid-item" id="qrcode-api">
             <h2>🂾 URL to QR Code</h2>
-            <form>
+            <form class="card-form" onsubmit="event.preventDefault(); getQRCode();">
                 <input type="text" name="qr-input" id="qr-input" placeholder="Enter url to encode" />
+                <div class="output" id="qr-output"></div>
+                <button type="submit">Generate</button>
             </form>
-            <button onclick="getQRCode()">Generate</button>
-            <div class="output" id="qr-output"></div>
         </section>
     </div>
-
     <script src="scripts/main.js"></script>
 </body>
 </html>

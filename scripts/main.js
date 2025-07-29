@@ -104,7 +104,6 @@ async function getCatImage() {
 async function getWeather() {
     showSpinner(weatherContainer);
     try {
-        // const location = await fetch(`https://corsproxy.io/?https://www.zipcodeapi.com/rest/DemoOnly00VOvrg5BoaKo7TGbA6OgBu8PYgZlWRbq9QBiG3RzBn0pOJOxOYFyf1P/info.json/${zipcodeInput.value}/degrees`);
         const location = await fetch(`https://corsproxy.io/?https://us-zipcode.api.smarty.com/lookup?auth-id=a98da199-68e3-cf23-08fa-ceb4acd6d9ff&auth-token=1uRjJPMKrA3s8jqDjbVs&zipcode=${zipcodeInput.value}`, {
             headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -113,18 +112,10 @@ async function getWeather() {
         });
         if (!location.ok) throw new Error();
         const locationData = await location.json();
-        console.log(locationData);
 
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData[0].zipcodes[0].latitude}&longitude=${locationData[0].zipcodes[0].longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
-        console.log(response);
         const data = await response.json();
 
-        console.log(locationData[0].zipcodes[0].latitude);
-        console.log(locationData[0].zipcodes[0].longitude);
-        console.log(locationData[0].city_states[0].city);
-        console.log(locationData[0].city_states[0].state);
-        console.log(data);
-        
         weatherContainer.innerHTML = '';
         const element = document.createElement('p');
         element.textContent =
