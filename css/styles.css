@@ -64,6 +64,15 @@ img {
     margin-top: 0.5rem;
 }
 
+/* Center images in Dog, Cat, and QR sections */
+#dog-output img,
+#cat-output img,
+#qr-output img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .github-inner-container {
     display: flex;
     align-items: center;
