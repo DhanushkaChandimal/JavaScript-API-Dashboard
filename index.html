@@ -62,10 +62,13 @@
             <div class="output" id="joke-output"></div>
         </section>
 
-        <section class="grid-item" id="public-api">
-            <h2>📚 Public APIs</h2>
-            <button onclick="getPublicApiInfo()">Show One</button>
-            <div class="output" id="publicapi-output"></div>
+        <section class="grid-item" id="qrcode-api">
+            <h2>🂾 URL to QR Code</h2>
+            <form>
+                <input type="text" name="qr-input" id="qr-input" placeholder="Enter url to encode" />
+            </form>
+            <button onclick="getQRCode()">Generate</button>
+            <div class="output" id="qr-output"></div>
         </section>
     </div>
 

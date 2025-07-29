@@ -5,10 +5,12 @@ const jokeContainer = document.getElementById('joke-output');
 const exchangeRatesContainer = document.getElementById('currency-output');
 const weatherContainer = document.getElementById('weather-output');
 const moviesContainer = document.getElementById('movies-output');
+const qrCodeContainer = document.getElementById('qr-output');
 const currencyForm = document.getElementById('currency-form');
 const fromValueElement = document.getElementById('currency-input-from');
 const toValueElement = document.getElementById('currency-input-to');
 const githubNameInput = document.getElementById('github-name-input');
+const qrInput = document.getElementById('qr-input');
 const zipcodeInput = document.getElementById('zipcode-input');
 
 let exchangeRateList;
@@ -227,6 +229,38 @@ async function getJoke() {
         jokeContainer.appendChild(errorMsg);
         console.error("Failed to fetch random joke:", data.message);
     }
+}
+
+async function getQRCode() {
+    if (!qrInput.value) {
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Please enter text to generate QR code.";
+        qrCodeContainer.innerHTML = '';
+        qrCodeContainer.appendChild(errorMsg);
+        return;
+    }
+
+    // Check if input is a valid URL
+    let isValidUrl = false;
+    try {
+        new URL(qrInput.value);
+        isValidUrl = true;
+    } catch (e) {
+        isValidUrl = false;
+    }
+
+    qrCodeContainer.innerHTML = '';
+    if (!isValidUrl) {
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Please enter a valid URL (e.g., https://example.com).";
+        qrCodeContainer.appendChild(errorMsg);
+        return;
+    }
+
+    const img = document.createElement('img');
+    img.src = "https://qrtag.net/api/qr_4.png?url=" + encodeURIComponent(qrInput.value);
+    img.alt = "QR tag";
+    qrCodeContainer.appendChild(img);
 }
 
 document.addEventListener('DOMContentLoaded', fetchExchangeRates);
