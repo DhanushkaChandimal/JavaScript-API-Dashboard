@@ -41,12 +41,13 @@ Assignment API Dashboard/
 
 - [Dog CEO API](https://dog.ceo/dog-api/)
 - [The Cat API](https://thecatapi.com/)
+- [US Zipcode API](https://www.smarty.com/docs/cloud/us-zipcode-api)
 - [Open-Meteo](https://open-meteo.com/)
 - [Currency API](https://github.com/fawazahmed0/currency-api)
 - [TMDB API](https://www.themoviedb.org/)
 - [GitHub API](https://docs.github.com/en/rest)
 - [JokeAPI](https://jokeapi.dev/)
-- [QRTag](https://qrtag.net/)
+- [QRTag](https://www.qrtag.net/api/)
 
 ---
 
