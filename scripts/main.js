@@ -46,39 +46,52 @@ const weatherCodeToDescription = {
     99: "Thunderstorm with slight and heavy hail"
 }
 
+// Utility function for spinner
+function showSpinner(container) {
+    container.innerHTML = '<div class="spinner"></div>';
+}
+
 async function getDogImage() {
+    showSpinner(dogImageContainer);
     const response = await fetch("https://dog.ceo/api/breeds/image/random");
     const data = await response.json();
+    dogImageContainer.innerHTML = '';
     if (data.status === "success") {
         const img = document.createElement('img');
         img.src = data.message;
         img.alt = "Random Dog Image";
-        dogImageContainer.innerHTML = ''; // Clear previous images
         dogImageContainer.appendChild(img);
     } else {
-        console.error("Failed to fetch dog image:", data.message);
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Failed to fetch dog image";
+        errorMsg.style.color = 'red';
+        dogImageContainer.appendChild(errorMsg);
     }
 }
 
 async function getCatImage() {
+    showSpinner(catImageContainer);
     const response = await fetch("https://api.thecatapi.com/v1/images/search");
     const data = await response.json();
-
+    catImageContainer.innerHTML = '';
     if (data.length > 0) {
         const img = document.createElement('img');
         img.src = data[0].url;
         img.alt = "Random Cat Image";
-        catImageContainer.innerHTML = ''; // Clear previous images
         catImageContainer.appendChild(img);
     } else {
-        console.error("Failed to fetch cat image");
+        const errorMsg = document.createElement('p');
+        errorMsg.textContent = "Failed to fetch cat image";
+        errorMsg.style.color = 'red';
+        catImageContainer.appendChild(errorMsg);
     }
 }
 
 async function getWeather() {
-    weatherContainer.innerHTML = '';
+    showSpinner(weatherContainer);
     const location = await fetch(`https://corsproxy.io/?https://www.zipcodeapi.com/rest/DemoOnly00p5g105NIMgcs7xLprpBsICspEFKkTcC4HcueQAg8ARdqXv3PG5MgsW/info.json/${zipcodeInput.value}/degrees`);
     if (!location.ok) {
+        weatherContainer.innerHTML = '';
         const errorMsg = document.createElement('p');
         errorMsg.textContent = "Invalid zipcode entered or unable to fetch location.";
         errorMsg.style.color = 'red';
@@ -87,13 +100,10 @@ async function getWeather() {
     }
     const locationData = await location.json();
 
-    // console.log(locationData);
-
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`);
     const data = await response.json();
 
-    // console.log(data);
-
+    weatherContainer.innerHTML = '';
     const element = document.createElement('p');
     element.textContent = 
         `${locationData.city}, ${locationData.state}\n
@@ -103,10 +113,10 @@ async function getWeather() {
         Weather: ${weatherCodeToDescription[data.current.weather_code] || "Unknown"}`;
     element.style.whiteSpace = 'pre-line';
     weatherContainer.appendChild(element);
-
 }
 
 async function fetchExchangeRates() {
+    showSpinner(exchangeRatesContainer);
     const currencies = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json");
     exchangeRateList = await currencies.json();
     const dataList = document.createElement('datalist');
@@ -117,46 +127,40 @@ async function fetchExchangeRates() {
         option.value = currency;
         option.textContent = currency;
         dataList.appendChild(option);
-        // console.log(`${currency} - ${exchangeRateList.usd[currency]}`);
     }
 
     currencyForm.appendChild(dataList);
-    // console.log(dataList)
+    exchangeRatesContainer.innerHTML = '';
 }
 
 async function getExchangeRates() {
+    showSpinner(exchangeRatesContainer);
     let fromRate = exchangeRateList.usd[fromValueElement.value];
     let toRate = exchangeRateList.usd[toValueElement.value];
-    // console.log(fromRate, toRate);
-    // console.log(fromRate, toRate);
 
     if (!fromRate || !toRate) {
+        exchangeRatesContainer.innerHTML = '';
         const errorMsg = document.createElement('p');
         errorMsg.textContent = "Invalid currency selected.";
-        exchangeRatesContainer.innerHTML = ''; // Clear previous results
         exchangeRatesContainer.appendChild(errorMsg);
-    }else{
+    } else {
         const amount = document.getElementById('amount-input').value;
         const exchangeResultElement = document.createElement('p');
         exchangeResultElement.textContent = `Exchange Rate: ${(amount * toRate / fromRate).toFixed(4)}`;
-        exchangeRatesContainer.innerHTML = ''; // Clear previous results
+        exchangeRatesContainer.innerHTML = '';
         exchangeRatesContainer.appendChild(exchangeResultElement);
-
     }
 }
 
 async function getMovies() {
-    moviesContainer.innerHTML = ''; // Clear previous content
+    showSpinner(moviesContainer);
     const response = await fetch("https://api.themoviedb.org/3/trending/movie/day", {
         headers: {
             Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhNTc4YWFlN2Y0NDYyZTViNGVkYzQyMDYzNjQ0NmQ5OCIsIm5iZiI6MTc1MzczNDE5Ny43MTksInN1YiI6IjY4ODdkYzM1YTg1NGU0MmViM2Y3OTZlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.G1BlyixM9bLMm4NE9p0j2A-cPahKo3XJcY9lMTafxww"
         }
     });
     const data = await response.json();
-
-    // console.log(data);
-    // console.log(data.results);
-
+    moviesContainer.innerHTML = '';
     for (let i = 0; i < 5 && i < Math.max(data.results.length, 5); i++) {
         const poster = document.createElement('img');
         poster.src = `https://image.tmdb.org/t/p/w500/${data.results[i].poster_path}`;
@@ -169,12 +173,10 @@ async function getMovies() {
         rowContainer.appendChild(movieTitle);
         moviesContainer.appendChild(rowContainer);
     }
-
 }
 
 async function getGitHubUser() {
-    githubContainer.innerHTML = ''; // Clear previous content
-    
+    showSpinner(githubContainer);
     try {
         const response = await fetch(`https://api.github.com/users/${githubNameInput.value}`);
         if (!response.ok) {
@@ -182,6 +184,7 @@ async function getGitHubUser() {
         }
         const data = await response.json();
         
+        githubContainer.innerHTML = '';
         const gitInnerContainer = document.createElement('div');
         gitInnerContainer.classList.add('github-inner-container');
         
@@ -205,6 +208,7 @@ async function getGitHubUser() {
         profileLink.target = "_blank";
         githubContainer.appendChild(profileLink);
     } catch (error) {
+        githubContainer.innerHTML = '';
         const errorMsg = document.createElement('p');
         errorMsg.textContent = `Error: ${error.message}`;
         errorMsg.style.color = 'red';
@@ -214,10 +218,10 @@ async function getGitHubUser() {
 }
 
 async function getJoke() {
-    jokeContainer.innerHTML = ''; // Clear previous jokes
+    showSpinner(jokeContainer);
     const response = await fetch("https://v2.jokeapi.dev/joke/Any?type=single&safe-mode");
     const data = await response.json();
-    
+    jokeContainer.innerHTML = '';
     if (!data.error) {
         const joke = document.createElement('p');
         joke.textContent = data.joke;
@@ -232,6 +236,7 @@ async function getJoke() {
 }
 
 async function getQRCode() {
+    showSpinner(qrCodeContainer);
     if (!qrInput.value) {
         const errorMsg = document.createElement('p');
         errorMsg.textContent = "Please enter text to generate QR code.";
@@ -249,17 +254,19 @@ async function getQRCode() {
         isValidUrl = false;
     }
 
-    qrCodeContainer.innerHTML = '';
     if (!isValidUrl) {
         const errorMsg = document.createElement('p');
         errorMsg.textContent = "Please enter a valid URL (e.g., https://example.com).";
+        qrCodeContainer.innerHTML = '';
         qrCodeContainer.appendChild(errorMsg);
         return;
     }
 
+
     const img = document.createElement('img');
     img.src = "https://qrtag.net/api/qr_4.png?url=" + encodeURIComponent(qrInput.value);
     img.alt = "QR tag";
+    qrCodeContainer.innerHTML = '';
     qrCodeContainer.appendChild(img);
 }
 
