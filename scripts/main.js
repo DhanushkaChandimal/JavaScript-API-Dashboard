@@ -126,7 +126,7 @@ async function getExchangeRates() {
     let fromRate = exchangeRateList.usd[fromValueElement.value];
     let toRate = exchangeRateList.usd[toValueElement.value];
     // console.log(fromRate, toRate);
-    console.log(fromRate, toRate);
+    // console.log(fromRate, toRate);
 
     if (!fromRate || !toRate) {
         const errorMsg = document.createElement('p');
@@ -136,7 +136,7 @@ async function getExchangeRates() {
     }else{
         const amount = document.getElementById('amount-input').value;
         const exchangeResultElement = document.createElement('p');
-        exchangeResultElement.textContent = `Exchange Rate: ${(amount * fromRate / toRate).toFixed(4)}`;
+        exchangeResultElement.textContent = `Exchange Rate: ${(amount * toRate / fromRate).toFixed(4)}`;
         exchangeRatesContainer.innerHTML = ''; // Clear previous results
         exchangeRatesContainer.appendChild(exchangeResultElement);
 
@@ -153,7 +153,7 @@ async function getMovies() {
     const data = await response.json();
 
     // console.log(data);
-    console.log(data.results);
+    // console.log(data.results);
 
     for (let i = 0; i < 5 && i < Math.max(data.results.length, 5); i++) {
         const poster = document.createElement('img');
